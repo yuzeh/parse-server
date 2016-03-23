@@ -23,6 +23,7 @@ function GCM(args) {
  */
 GCM.prototype.send = function(data, devices) {
   // Make a new array
+  let pushId = cryptoUtils.newObjectId();
   devices = new Array(...devices);
   let timestamp = Date.now();
   // For android, we can only have 1000 recepients per send, so we need to slice devices to
@@ -52,7 +53,7 @@ GCM.prototype.send = function(data, devices) {
     expirationTime = data['expiration_time'];
   }
   // Generate gcm payload
-  let gcmPayload = generateGCMPayload(data.data, timestamp, expirationTime);
+  let gcmPayload = generateGCMPayload(data.data, pushId, timestamp, expirationTime);
   // Make and send gcm request
   let message = new gcm.Message(gcmPayload);
 
@@ -107,10 +108,11 @@ GCM.prototype.send = function(data, devices) {
  * @param {Number|undefined} expirationTime A number whose format is the Unix Epoch or undefined
  * @returns {Object} A promise which is resolved after we get results from gcm
  */
-function generateGCMPayload(coreData, timeStamp, expirationTime) {
+function generateGCMPayload(coreData, pushId, timeStamp, expirationTime) {
   let payloadData =  {
     'time': new Date(timeStamp).toISOString(),
-    'data': JSON.stringify(coreData)
+    'data': JSON.stringify(coreData),
+    'push_id': pushId
   }
   let payload = {
     priority: 'normal',
