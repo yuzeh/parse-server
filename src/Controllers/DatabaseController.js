@@ -1,4 +1,4 @@
-// A database adapter that works with data exported from the hosted
+﻿// A database adapter that works with data exported from the hosted
 // Parse database.
 
 import intersect from 'intersect';
@@ -44,7 +44,7 @@ const transformObjectACL = ({ ACL, ...result }) => {
   return result;
 }
 
-const specialQuerykeys = ['$and', '$or', '_rperm', '_wperm', '_perishable_token', '_email_verify_token'];
+const specialQuerykeys = ['$and', '$or', '_rperm', '_wperm', '_perishable_token', '_email_verify_token', '_email_verify_token_expires_at'];
 const validateQuery = query => {
   if (query.ACL) {
     throw new Parse.Error(Parse.Error.INVALID_QUERY, 'Cannot query on ACL.');
@@ -121,7 +121,7 @@ DatabaseController.prototype.loadSchema = function() {
 DatabaseController.prototype.redirectClassNameForKey = function(className, key) {
   return this.loadSchema().then((schema) => {
     var t = schema.getExpectedType(className, key);
-    if (t.type == 'Relation') {
+    if (t && t.type == 'Relation') {
       return t.targetClass;
     } else {
       return className;
@@ -176,7 +176,7 @@ const filterSensitiveData = (isMaster, aclGroup, className, object) => {
 //   acl:  a list of strings. If the object to be updated has an ACL,
 //         one of the provided strings must provide the caller with
 //         write permissions.
-const specialKeysForUpdate = ['_hashed_password', '_perishable_token', '_email_verify_token'];
+const specialKeysForUpdate = ['_hashed_password', '_perishable_token', '_email_verify_token', '_email_verify_token_expires_at'];
 DatabaseController.prototype.update = function(className, query, update, {
   acl,
   many,
